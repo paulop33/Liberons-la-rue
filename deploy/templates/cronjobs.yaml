@@ -1,0 +1,25 @@
+{{- range .Values.cronjobs }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "liberons-la-rue.fullname" $ }}-{{ .name }}
+  labels:
+    {{- include "liberons-la-rue.labels" $ | nindent 4 }}
+spec:
+  schedule: {{ .schedule }}
+  timeZone: {{ .timeZone }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: liberons-la-rue
+            image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+            imagePullPolicy: {{ $.Values.image.pullPolicy }}
+            envFrom:
+            - secretRef:
+                name: {{ include "liberons-la-rue.fullname" $ }}
+            args: [ {{ .script | quote }} ]
+          restartPolicy: OnFailure
+{{- end }}

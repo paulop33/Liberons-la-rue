@@ -1,0 +1,5 @@
+apiVersion: v2
+name: liberons-la-rue
+description: "Libérons la rue"
+type: application
+version: 0.1.0

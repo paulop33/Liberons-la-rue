@@ -1,25 +1,42 @@
 # coding: utf-8
 
+import argparse
+import json
+import matplotlib.pyplot as plt
+import os
+import random
+import re
+import requests
+import statistics
+from datetime import datetime, timedelta
+from twython import Twython
+from types import SimpleNamespace
+
+
 # données critiques
 
+# Parse input arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('--twitter-consumer-key',
+                    default=os.getenv('TWITTER_CONSUMER_KEY'))
+parser.add_argument('--twitter-consumer-secret',
+                    default=os.getenv('TWITTER_CONSUMER_SECRET'))
+parser.add_argument('--twitter-access-token',
+                    default=os.getenv('TWITTER_ACCESS_TOKEN'))
+parser.add_argument('--twitter-access-token-secret',
+                    default=os.getenv('TWITTER_ACCESS_TOKEN_SECRET'))
+parser.add_argument('--bordeaux-metropole-key',
+                    default=os.getenv('BORDEAUX_METROPOLE_KEY'))
+args = parser.parse_args()
+
 ## twitter key
-consumer_key = ''
-consumer_secret = ''
-access_token = ''
-access_token_secret = ''
+consumer_key = args.twitter_consumer_key
+consumer_secret = args.twitter_consumer_secret
+access_token = args.twitter_access_token
+access_token_secret = args.twitter_access_token_secret
 
 ## bordeaux metropole key
-bordeaux_metropole_key = ''
-
-import matplotlib.pyplot as plt
-import random
-import requests
-from datetime import datetime, timedelta
-import json
-from types import SimpleNamespace
-import statistics
-from twython import Twython
-import re
+bordeaux_metropole_key = args.bordeaux_metropole_key
 
 twitter = Twython(
     consumer_key,
@@ -98,10 +115,10 @@ plt.axis([0, 24, 0, 100])
 plt.xticks(rotation=45)
 plt.grid(True)
 plt.title(titre)
-plt.figtext(0.6, 0.05, 'Auteur : @policedepierrot') 
+plt.figtext(0.6, 0.05, 'Auteur : @policedepierrot')
 plt.figtext(0.05, 0.05, 'Source : Bordeaux Métropole')
-plt.figtext(0.05, 0.1, 'Moyenne totale de places libres par heure : {0} sur {1} places'.format(int(moyenne_jour_place_libre), int(moyenne_jour_places_totales))) 
-plt.figtext(0.05, 0.15, 'Parkings hors voirie entre les ponts sur les quais rive gauche') 
+plt.figtext(0.05, 0.1, 'Moyenne totale de places libres par heure : {0} sur {1} places'.format(int(moyenne_jour_place_libre), int(moyenne_jour_places_totales)))
+plt.figtext(0.05, 0.15, 'Parkings hors voirie entre les ponts sur les quais rive gauche')
 plt.subplots_adjust(bottom=0.35)
 #plt.show()
 plt.savefig('foo.png')
@@ -110,7 +127,7 @@ kmTotal = min_jour_place_libre * 5 / 1000
 
 ratioPlace = min_jour_place_libre / placesEntrePonts * 100
 liberable = 'liberables' if kmTotal >= 2 else 'liberable'
-tweet_text = "Hier, au minimum, {0} places étaient libres dans les parkings hors voirie entre les ponts de Pierre et Chaban. Cela correspond à {1:.2f}km {2} soit {3:.2f}% des places en surface. \n #liberonsLesQuais".format(int(min_jour_place_libre), float(kmTotal), liberable, float(ratioPlace)) 
+tweet_text = "Hier, au minimum, {0} places étaient libres dans les parkings hors voirie entre les ponts de Pierre et Chaban. Cela correspond à {1:.2f}km {2} soit {3:.2f}% des places en surface. \n #liberonsLesQuais".format(int(min_jour_place_libre), float(kmTotal), liberable, float(ratioPlace))
 
 image = open('foo.png', 'rb')
 response = twitter.upload_media(media=image)

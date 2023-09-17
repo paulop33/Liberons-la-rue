@@ -1,0 +1,14 @@
+cronjobs:
+  - name: hypercentre
+    script: liberonslarue.py
+    schedule: "42 0 * * *"
+    timeZone: Europe/Paris
+  - name: quais
+    schedule: "0 18 * * *"
+    script: liberonslesquais.py
+    timeZone: Europe/Paris
+
+image:
+  repository: ghcr.io/loicgombeaud/liberons-la-rue
+  tag: latest
+  pullPolicy: Always
