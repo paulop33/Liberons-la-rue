@@ -1,0 +1,10 @@
+cronjob:
+  schedule: "0 18 * * *"
+  scripts:
+    - liberonslarue.py
+    - liberonslesquais.py
+
+image:
+  repository: ghcr.io/loicgombeaud/liberons-la-rue
+  tag: latest
+  pullPolicy: Always
