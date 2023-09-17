@@ -1,25 +1,42 @@
 # coding: utf-8
 
+import argparse
+import json
+import matplotlib.pyplot as plt
+import os
+import random
+import re
+import requests
+import statistics
+from datetime import datetime, timedelta
+from twython import Twython
+from types import SimpleNamespace
+
+
 # données critiques
 
+# Parse input arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('--twitter-consumer-key',
+                    default=os.getenv('TWITTER_CONSUMER_KEY'))
+parser.add_argument('--twitter-consumer-secret',
+                    default=os.getenv('TWITTER_CONSUMER_SECRET'))
+parser.add_argument('--twitter-access-token',
+                    default=os.getenv('TWITTER_ACCESS_TOKEN'))
+parser.add_argument('--twitter-access-token-secret',
+                    default=os.getenv('TWITTER_ACCESS_TOKEN_SECRET'))
+parser.add_argument('--bordeaux-metropole-key',
+                    default=os.getenv('BORDEAUX_METROPOLE_KEY'))
+args = parser.parse_args()
+
 ## twitter key
-consumer_key = ''
-consumer_secret = ''
-access_token = ''
-access_token_secret = ''
+consumer_key = args.twitter_consumer_key
+consumer_secret = args.twitter_consumer_secret
+access_token = args.twitter_access_token
+access_token_secret = args.twitter_access_token_secret
 
 ## bordeaux metropole key
-bordeaux_metropole_key = ''
-
-import matplotlib.pyplot as plt
-import random
-import requests
-from datetime import datetime, timedelta
-import json
-from types import SimpleNamespace
-import statistics
-from twython import Twython
-import re
+bordeaux_metropole_key = args.bordeaux_metropole_key
 
 twitter = Twython(
     consumer_key,
