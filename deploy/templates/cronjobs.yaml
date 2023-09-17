@@ -1,13 +1,14 @@
-{{- range .Values.cronjob.scripts }}
+{{- range .Values.cronjobs }}
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "liberons-la-rue.fullname" $ }}-{{ . }}
+  name: {{ include "liberons-la-rue.fullname" $ }}-{{ .name }}
   labels:
     {{- include "liberons-la-rue.labels" $ | nindent 4 }}
 spec:
-  schedule: {{ $.Values.cronjob.schedule }}
+  schedule: {{ .schedule }}
+  timeZone: {{ .timeZone }}
   jobTemplate:
     spec:
       template:
@@ -19,6 +20,6 @@ spec:
             envFrom:
             - secretRef:
                 name: {{ include "liberons-la-rue.fullname" $ }}
-            args: [ {{ . | quote }} ]
+            args: [ {{ .script | quote }} ]
           restartPolicy: OnFailure
 {{- end }}
