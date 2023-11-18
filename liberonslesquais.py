@@ -20,6 +20,7 @@ from types import SimpleNamespace
 import statistics
 from twython import Twython
 import re
+from requests_oauthlib import OAuth1Session
 
 twitter = Twython(
     consumer_key,
@@ -92,6 +93,13 @@ titre = 'Taux d\'occupation du %s :  %0.1f%%' % (start.strftime('%d/%m/%Y'), moy
 fig = plt.figure()
 fig.patch.set_facecolor('xkcd:white')
 n = plt.bar(['%dh' % i for i in range(24)], valuesTauxOccupation, color=(1, 0, 0, 0.6))
+
+suspicionBug=False
+for i in range(len(valuesTauxOccupation)):
+    if (i-1 >= 0 and valuesTauxOccupation[i] == valuesTauxOccupation[i-1]):
+        plt.annotate('*', xy=(n[i],valuesTauxOccupation[i]), ha='center', va='bottom')
+        suspicionBug = True
+
 plt.xlabel('Heure')
 plt.ylabel(u'Taux de remplissage')
 plt.axis([0, 24, 0, 100])
@@ -100,6 +108,9 @@ plt.grid(True)
 plt.title(titre)
 plt.figtext(0.6, 0.05, 'Auteur : @policedepierrot') 
 plt.figtext(0.05, 0.05, 'Source : Bordeaux Métropole')
+if (suspicionBug):
+    plt.figtext(0.05, 0.0, '* Suspicion d\'erreur dans les datas')
+
 plt.figtext(0.05, 0.1, 'Moyenne totale de places libres par heure : {0} sur {1} places'.format(int(moyenne_jour_place_libre), int(moyenne_jour_places_totales))) 
 plt.figtext(0.05, 0.15, 'Parkings hors voirie entre les ponts sur les quais rive gauche') 
 plt.subplots_adjust(bottom=0.35)
@@ -114,5 +125,20 @@ tweet_text = "Hier, au minimum, {0} places étaient libres dans les parkings hor
 
 image = open('foo.png', 'rb')
 response = twitter.upload_media(media=image)
-media_id = [response['media_id']]
-twitter.update_status(status=tweet_text, media_ids=media_id)
+media_id = [str(response['media_id'])]
+
+# Make the request
+oauth = OAuth1Session(
+    consumer_key,
+    client_secret=consumer_secret,
+    resource_owner_key=access_token,
+    resource_owner_secret=access_token_secret,
+)
+
+payload = {"text": tweet_text, "media": {"media_ids": media_id}}
+# Making the request
+response = oauth.post(
+    "https://api.twitter.com/2/tweets",
+    json=payload,
+)
+print("Tweeted: " + tweet_text)
