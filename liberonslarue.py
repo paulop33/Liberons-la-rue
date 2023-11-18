@@ -20,6 +20,7 @@ from types import SimpleNamespace
 import statistics
 from twython import Twython
 import re
+from requests_oauthlib import OAuth1Session
 
 twitter = Twython(
     consumer_key,
@@ -113,6 +114,21 @@ plt.savefig('foo.png')
 tweet_text = titre + "\n" + "Minimum de places libres : {0}, équivalent à {1:.2f}km libérables".format(int(min_jour_place_libre), float(min_jour_place_libre * 5 / 1000)) 
 image = open('foo.png', 'rb')
 response = twitter.upload_media(media=image)
-media_id = [response['media_id']]
+media_id = [str(response['media_id'])]
 twitter.update_status(status=tweet_text, media_ids=media_id)
+
+# Make the request
+oauth = OAuth1Session(
+    consumer_key,
+    client_secret=consumer_secret,
+    resource_owner_key=access_token,
+    resource_owner_secret=access_token_secret,
+)
+
+payload = {"text": tweet_text, "media": {"media_ids": media_id}}
+# Making the request
+response = oauth.post(
+    "https://api.twitter.com/2/tweets",
+    json=payload,
+)
 print("Tweeted: " + tweet_text)
